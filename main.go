@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 )
@@ -26,7 +27,19 @@ func notFound(w http.ResponseWriter, r *http.Request) {
 	http.NotFound(w, r)
 }
 
-func createSnippet(w http.ResponseWriter, _ *http.Request) {
+func createSnippet(w http.ResponseWriter, r *http.Request) {
+	// запрет на использование методов запросов отличных от POST
+	if r.Method != http.MethodPost {
+		// передаем в заголовке, какой метод разрешён
+		w.Header().Set("Allow", http.MethodPost)
+
+		str := fmt.Sprintf("%s-запрос запрещён. Разрешён только POST-запрос.", r.Method)
+		// выдача кода состояния с описанием проблемы в теле ответа
+		http.Error(w, str, http.StatusMethodNotAllowed)
+
+		return
+	}
+
 	_, err := w.Write([]byte("Форма для создания новой заметки..."))
 	if err != nil {
 		log.Fatal(err)
