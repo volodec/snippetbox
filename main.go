@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 func main() {
@@ -46,10 +47,16 @@ func createSnippet(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func showSnippet(w http.ResponseWriter, _ *http.Request) {
-	_, err := w.Write([]byte("Отображение заметки..."))
-	if err != nil {
-		log.Fatal(err)
+func showSnippet(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.Atoi(r.URL.Query().Get("id"))
+	if err != nil || id < 1 {
+		redirectToNotFound(w, r)
+		return
+	}
+
+	_, errRes := fmt.Fprintf(w, "Отображение заметки №%d...", id)
+	if errRes != nil {
+		log.Fatal(errRes)
 	}
 }
 
@@ -59,7 +66,7 @@ func home(w http.ResponseWriter, r *http.Request) {
 	// сюда валится всё что не попадает в иные роуты текущего уровня.
 	// Поэтому таким образом, мы реализуем 404 ошибку для несуществующих адресов.
 	if r.URL.Path != "/" {
-		http.Redirect(w, r, "/404", http.StatusSeeOther)
+		redirectToNotFound(w, r)
 		return
 	}
 
@@ -67,4 +74,8 @@ func home(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func redirectToNotFound(w http.ResponseWriter, r *http.Request) {
+	http.Redirect(w, r, "/404", http.StatusSeeOther)
 }
