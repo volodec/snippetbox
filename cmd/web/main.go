@@ -1,12 +1,23 @@
 package main
 
 import (
+	"flag"
+	"fmt"
+	env "github.com/volodec/go-dot-env"
 	"log"
 	"net/http"
 	"path/filepath"
 )
 
 func main() {
+	// аналогия .env принимающая флаги из командной строки при запуске/сборке
+	// пример для доступа по порту 3000: go run ./cmd/web -port="3000"
+	port := flag.String("port", "4000", "Порт доступности приложения")
+	flag.Parse()
+
+	// использование самописа для получения значений из .env
+	host := env.String("HOST", "localhost")
+
 	// регаем роутер
 	mux := http.NewServeMux()
 	// роуты путь и обработчик
@@ -19,8 +30,9 @@ func main() {
 	fileServer := http.FileServer(safeFileSystem{fs: http.Dir("./ui/static")})
 	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
 
-	log.Println("Запуск веб-сервера на http://localhost:4000")
-	err := http.ListenAndServe(":4000", mux)
+	log.Println(fmt.Sprintf("Запуск веб-сервера на http://%s:%s", host, *port))
+
+	err := http.ListenAndServe(fmt.Sprintf("%s:%s", host, *port), mux)
 	if err != nil {
 		log.Fatal(err)
 	}
