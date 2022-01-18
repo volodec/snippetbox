@@ -6,6 +6,7 @@ import (
 	env "github.com/volodec/go-dot-env"
 	"log"
 	"net/http"
+	"os"
 	"path/filepath"
 )
 
@@ -17,6 +18,12 @@ func main() {
 
 	// использование самописа для получения значений из .env
 	host := env.String("HOST", "localhost")
+	addr := fmt.Sprintf("%s:%s", host, *port)
+
+	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
+	errLog := log.New(findOrCreateFile("./ui/static/logs/errors.log"), "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
+	// логгер в файл ошибок http-сервера
+	httpErrLog := log.New(findOrCreateFile("./ui/static/logs/httpErr.log"), "HTTP\t", log.Ldate|log.Ltime|log.Lshortfile)
 
 	// регаем роутер
 	mux := http.NewServeMux()
@@ -30,19 +37,38 @@ func main() {
 	fileServer := http.FileServer(safeFileSystem{fs: http.Dir("./ui/static")})
 	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
 
-	log.Println(fmt.Sprintf("Запуск веб-сервера на http://%s:%s", host, *port))
+	// Инициализация новой структуры http.Server для использования кастомного логгера ошибок
+	srv := &http.Server{
+		Addr:     addr,
+		Handler:  mux,
+		ErrorLog: httpErrLog,
+	}
 
-	err := http.ListenAndServe(fmt.Sprintf("%s:%s", host, *port), mux)
+	infoLog.Println(fmt.Sprintf("Запуск веб-сервера на http://%s:%s", host, *port))
+
+	err := srv.ListenAndServe()
 	if err != nil {
-		log.Fatal(err)
+		errLog.Fatal(err)
 	}
 
 }
 
+func findOrCreateFile(path string) *os.File {
+	file, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+	return file
+}
+
+// Обёртка над файловой системой.
 type safeFileSystem struct {
 	fs http.FileSystem
 }
 
+// Open реализует запрет на просмотр содержимого папки,
+// с условием, что внутри нет index.html.
 func (nfs safeFileSystem) Open(path string) (http.File, error) {
 	f, err := nfs.fs.Open(path)
 	if err != nil {
