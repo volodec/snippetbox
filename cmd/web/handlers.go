@@ -3,16 +3,15 @@ package main
 import (
 	"fmt"
 	"html/template"
-	"log"
 	"net/http"
 	"strconv"
 )
 
-func notFound(w http.ResponseWriter, r *http.Request) {
+func (app *application) notFound(w http.ResponseWriter, r *http.Request) {
 	http.NotFound(w, r)
 }
 
-func createSnippet(w http.ResponseWriter, r *http.Request) {
+func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
 	// запрет на использование методов запросов отличных от POST
 	if r.Method != http.MethodPost {
 		// передаем в заголовке, какой метод разрешён
@@ -27,11 +26,11 @@ func createSnippet(w http.ResponseWriter, r *http.Request) {
 
 	_, err := w.Write([]byte("Форма для создания новой заметки..."))
 	if err != nil {
-		log.Fatal(err)
+		app.errLog.Fatal(err)
 	}
 }
 
-func showSnippet(w http.ResponseWriter, r *http.Request) {
+func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(r.URL.Query().Get("id"))
 	if err != nil || id < 1 {
 		redirectToNotFound(w, r)
@@ -40,11 +39,11 @@ func showSnippet(w http.ResponseWriter, r *http.Request) {
 
 	_, errRes := fmt.Fprintf(w, "Отображение заметки №%d...", id)
 	if errRes != nil {
-		log.Fatal(errRes)
+		app.errLog.Fatal(errRes)
 	}
 }
 
-func home(w http.ResponseWriter, r *http.Request) {
+func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	// Так как в настройках роута последним и единственным символом является "/",
 	// то текущий обработчик является обработчиком многоуровневого роута. Т.е.
 	// сюда валится всё что не попадает в иные роуты текущего уровня.
@@ -62,14 +61,14 @@ func home(w http.ResponseWriter, r *http.Request) {
 
 	ts, err := template.ParseFiles(files...)
 	if err != nil {
-		log.Println(err.Error())
+		app.errLog.Println(err.Error())
 		http.Error(w, "Беда с чтением шаблонов...", http.StatusInternalServerError)
 		return
 	}
 
 	err = ts.Execute(w, nil)
 	if err != nil {
-		log.Println(err.Error())
+		app.errLog.Println(err.Error())
 		http.Error(w, "Беда с отрисовкой шаблонов...", http.StatusInternalServerError)
 	}
 }

@@ -10,6 +10,11 @@ import (
 	"path/filepath"
 )
 
+type application struct {
+	errLog  *log.Logger
+	infoLog *log.Logger
+}
+
 func main() {
 	// аналогия .env принимающая флаги из командной строки при запуске/сборке
 	// пример для доступа по порту 3000: go run ./cmd/web -port="3000"
@@ -25,13 +30,18 @@ func main() {
 	// логгер в файл ошибок http-сервера
 	httpErrLog := log.New(findOrCreateFile("./ui/static/logs/httpErr.log"), "HTTP\t", log.Ldate|log.Ltime|log.Lshortfile)
 
+	app := &application{
+		errLog:  errLog,
+		infoLog: infoLog,
+	}
+
 	// регаем роутер
 	mux := http.NewServeMux()
 	// роуты путь и обработчик
-	mux.HandleFunc("/", home)
-	mux.HandleFunc("/404", notFound)
-	mux.HandleFunc("/snippet", showSnippet)
-	mux.HandleFunc("/snippet/create", createSnippet)
+	mux.HandleFunc("/", app.home)
+	mux.HandleFunc("/404", app.notFound)
+	mux.HandleFunc("/snippet", app.showSnippet)
+	mux.HandleFunc("/snippet/create", app.createSnippet)
 
 	// отдача статических файлов
 	fileServer := http.FileServer(safeFileSystem{fs: http.Dir("./ui/static")})
