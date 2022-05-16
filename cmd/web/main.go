@@ -39,7 +39,6 @@ func main() {
 	mux := http.NewServeMux()
 	// роуты путь и обработчик
 	mux.HandleFunc("/", app.home)
-	mux.HandleFunc("/404", app.notFound)
 	mux.HandleFunc("/snippet", app.showSnippet)
 	mux.HandleFunc("/snippet/create", app.createSnippet)
 
