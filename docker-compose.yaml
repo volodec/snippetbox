@@ -1,0 +1,29 @@
+version: '3.1'
+
+services:
+  db:
+    image: mysql:8
+    restart: "no"
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: "snippet_pass"
+      MYSQL_DATABASE: "snippet_db"
+      MYSQL_USER: "snippet_user"
+      MYSQL_PASSWORD: "snippet_pass"
+
+  pma:
+    image: phpmyadmin/phpmyadmin
+    links:
+      - db
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      PMA_ARBITRARY: 1
+    restart: always
+    ports:
+      - "8081:80"
+volumes:
+  mysql-data:

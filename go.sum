@@ -1,2 +1,4 @@
+github.com/go-sql-driver/mysql v1.6.0 h1:BCTh4TKNUYmOmMUcQ3IipzF5prigylS7XXjEkfCHuOE=
+github.com/go-sql-driver/mysql v1.6.0/go.mod h1:DCzpHaOWr8IXmIStZouvnhqoel9Qv2LBy8hT2VhHyBg=
 github.com/volodec/go-dot-env v0.1.0 h1:ret5LHnt+Bqu/g5j9ruEe6JwoQyIwU4H51sGJuXnbBE=
 github.com/volodec/go-dot-env v0.1.0/go.mod h1:T3JJdpPRVm9tYXAGIphOeb+vZ4tEeIyz2Enl0pr/YCA=
