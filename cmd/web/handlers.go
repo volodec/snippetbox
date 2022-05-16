@@ -1,7 +1,9 @@
 package main
 
 import (
+	"errors"
 	"fmt"
+	"github.com/volodec/snippetbox/pkg/models"
 	"html/template"
 	"net/http"
 	"strconv"
@@ -40,10 +42,18 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, errRes := fmt.Fprintf(w, "Отображение заметки №%d...", id)
-	if errRes != nil {
-		app.errLog.Fatal(errRes)
+	snippet, err := app.snippets.Get(id)
+	if err != nil {
+		if errors.Is(err, models.ErrNoRecord) {
+			app.notFound(w)
+			return
+		}
+
+		app.serverError(w, err)
+		return
 	}
+
+	fmt.Fprintf(w, "%v", snippet)
 }
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {

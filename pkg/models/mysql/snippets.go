@@ -2,6 +2,7 @@ package mysql
 
 import (
 	"database/sql"
+	"errors"
 	"github.com/volodec/snippetbox/pkg/models"
 )
 
@@ -11,7 +12,7 @@ type SnippetModel struct {
 }
 
 // Insert - Метод для создания новой заметки в базе дынных.
-func (m SnippetModel) Insert(title, content, expires string) (int, error) {
+func (m *SnippetModel) Insert(title, content, expires string) (int, error) {
 	query := `INSERT INTO snippets (title, content, created_at, expires_at)
 	VALUES(?, ?, UTC_TIMESTAMP(), DATE_ADD(UTC_TIMESTAMP(), INTERVAL ? DAY))`
 
@@ -29,11 +30,30 @@ func (m SnippetModel) Insert(title, content, expires string) (int, error) {
 }
 
 // Get - Метод для возвращения данных заметки по её идентификатору ID.
-func (m SnippetModel) Get(id int) (*models.Snippet, error) {
-	return nil, nil
+func (m *SnippetModel) Get(id int) (*models.Snippet, error) {
+	query := `SELECT id, title, content, created_at, expires_at FROM snippets 
+	WHERE id = ? AND expires_at > UTC_TIMESTAMP()`
+
+	// Возвращается указатель на объект sql.Row, который содержит данные записи.
+	row := m.DB.QueryRow(query, id)
+
+	// Инициализируем указатель на новую структуру Snippet.
+	s := &models.Snippet{}
+
+	scanErr := row.Scan(&s.ID, &s.Title, &s.Content, &s.CreatedAt, &s.ExpiresAt)
+
+	if scanErr != nil {
+		if errors.Is(scanErr, sql.ErrNoRows) {
+			return nil, models.ErrNoRecord
+		} else {
+			return nil, scanErr
+		}
+	}
+
+	return s, nil
 }
 
 // Latest - Метод возвращает 10 наиболее часто используемые заметки.
-func (m SnippetModel) Latest() ([]*models.Snippet, error) {
+func (m *SnippetModel) Latest() ([]*models.Snippet, error) {
 	return nil, nil
 }
