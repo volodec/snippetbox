@@ -6,14 +6,16 @@ import (
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	env "github.com/volodec/go-dot-env"
+	"github.com/volodec/snippetbox/pkg/models/mysql"
 	"log"
 	"net/http"
 	"os"
 )
 
 type application struct {
-	errLog  *log.Logger
-	infoLog *log.Logger
+	errLog   *log.Logger
+	infoLog  *log.Logger
+	snippets *mysql.SnippetModel
 }
 
 func main() {
@@ -40,8 +42,9 @@ func main() {
 	defer db.Close()
 
 	app := &application{
-		errLog:  errLog,
-		infoLog: infoLog,
+		errLog:   errLog,
+		infoLog:  infoLog,
+		snippets: &mysql.SnippetModel{DB: db},
 	}
 
 	// Инициализация новой структуры http.Server для использования кастомного логгера ошибок
