@@ -12,7 +12,20 @@ type SnippetModel struct {
 
 // Insert - Метод для создания новой заметки в базе дынных.
 func (m SnippetModel) Insert(title, content, expires string) (int, error) {
-	return 0, nil
+	query := `INSERT INTO snippets (title, content, created_at, expires_at)
+	VALUES(?, ?, UTC_TIMESTAMP(), DATE_ADD(UTC_TIMESTAMP(), INTERVAL ? DAY))`
+
+	result, resultErr := m.DB.Exec(query, title, content, expires)
+	if resultErr != nil {
+		return 0, resultErr
+	}
+
+	id, err := result.LastInsertId()
+	if err != nil {
+		return 0, err
+	}
+
+	return int(id), nil
 }
 
 // Get - Метод для возвращения данных заметки по её идентификатору ID.

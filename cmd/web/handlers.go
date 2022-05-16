@@ -19,10 +19,18 @@ func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err := w.Write([]byte("Форма для создания новой заметки..."))
-	if err != nil {
-		app.serverError(w, err)
+	// TODO пока для теста
+	title := "История про улитку"
+	content := "Жила была улитка, пока не умерла"
+	expires := "7"
+
+	id, insetErr := app.snippets.Insert(title, content, expires)
+	if insetErr != nil {
+		app.serverError(w, insetErr)
+		return
 	}
+
+	http.Redirect(w, r, fmt.Sprintf("/snippet?id=%d", id), http.StatusSeeOther)
 }
 
 func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
