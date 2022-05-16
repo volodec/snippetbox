@@ -6,4 +6,4 @@
 Запуск проекта: `go run ./cmd/web`
 
 
-следующий урок: https://golangify.com/logging
+следующий урок: https://golangify.com/multiple-record-sql-queries
