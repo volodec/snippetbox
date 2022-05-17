@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/volodec/snippetbox/pkg/models"
+	"html/template"
 	"net/http"
 	"strconv"
 )
@@ -52,7 +53,25 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprintf(w, "%v", snippet)
+	templateData := &templateData{Snippet: snippet}
+
+	files := []string{
+		"./ui/html/show.page.tmpl",
+		"./ui/html/base.layout.tmpl",
+		"./ui/html/footer.partial.tmpl",
+	}
+
+	templates, err := template.ParseFiles(files...)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
+	err = templates.Execute(w, templateData)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
 }
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
