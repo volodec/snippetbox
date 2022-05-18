@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/volodec/snippetbox/pkg/models"
-	"html/template"
 	"net/http"
 	"strconv"
 )
@@ -55,23 +54,7 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 
 	templateData := &templateData{OneEntry: snippet}
 
-	files := []string{
-		"./ui/html/show.page.tmpl",
-		"./ui/html/base.layout.tmpl",
-		"./ui/html/footer.partial.tmpl",
-	}
-
-	templates, err := template.ParseFiles(files...)
-	if err != nil {
-		app.serverError(w, err)
-		return
-	}
-
-	err = templates.Execute(w, templateData)
-	if err != nil {
-		app.serverError(w, err)
-		return
-	}
+	app.render(w, r, "show.page.tmpl", templateData)
 }
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
@@ -91,20 +74,5 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 
 	templateData := &templateData{ListEntries: snippets}
 
-	files := []string{
-		"./ui/html/home.page.tmpl",
-		"./ui/html/base.layout.tmpl",
-		"./ui/html/footer.partial.tmpl",
-	}
-
-	ts, err := template.ParseFiles(files...)
-	if err != nil {
-		app.serverError(w, err)
-		return
-	}
-
-	err = ts.Execute(w, templateData)
-	if err != nil {
-		app.serverError(w, err)
-	}
+	app.render(w, r, "home.page.tmpl", templateData)
 }

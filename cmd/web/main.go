@@ -7,15 +7,17 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	env "github.com/volodec/go-dot-env"
 	"github.com/volodec/snippetbox/pkg/models/mysql"
+	"html/template"
 	"log"
 	"net/http"
 	"os"
 )
 
 type application struct {
-	errLog   *log.Logger
-	infoLog  *log.Logger
-	snippets *mysql.SnippetModel
+	errLog        *log.Logger
+	infoLog       *log.Logger
+	snippets      *mysql.SnippetModel
+	templateCache map[string]*template.Template
 }
 
 func main() {
@@ -41,10 +43,17 @@ func main() {
 
 	defer db.Close()
 
+	templateCache, err := newTemplateCache("./ui/html/")
+	if err != nil {
+		errLog.Fatal(err)
+		return
+	}
+
 	app := &application{
-		errLog:   errLog,
-		infoLog:  infoLog,
-		snippets: &mysql.SnippetModel{DB: db},
+		errLog:        errLog,
+		infoLog:       infoLog,
+		snippets:      &mysql.SnippetModel{DB: db},
+		templateCache: templateCache,
 	}
 
 	// Инициализация новой структуры http.Server для использования кастомного логгера ошибок
