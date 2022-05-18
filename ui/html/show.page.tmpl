@@ -1,14 +1,16 @@
 {{ template "base" . }}
 
-{{ define "title" }}Заметка №{{ .Snippet.ID }}.{{ end }}
+{{ define "title" }}Заметка №{{ .OneEntry.ID }}.{{ end }}
 
 {{ define "main" }}
-    <div class="snippet">
-        <div class="metadata"><strong>{{ .Snippet.Title }}</strong><span>#{{ .Snippet.ID }}</span></div>
-        <pre><code>{{ .Snippet.Content }}</code></pre>
-        <div class="metadata">
-            <time>Создан: {{ .Snippet.CreatedAt }}</time>
-            <time>Годен до: {{ .Snippet.ExpiresAt }}</time>
+    {{ with .OneEntry}}
+        <div class="snippet">
+            <div class="metadata"><strong>{{ .Title }}</strong><span>#{{ .ID }}</span></div>
+            <pre><code>{{ .Content }}</code></pre>
+            <div class="metadata">
+                <time>Создан: {{ .CreatedAt }}</time>
+                <time>Годен до: {{ .ExpiresAt }}</time>
+            </div>
         </div>
-    </div>
+    {{ end }}
 {{ end }}

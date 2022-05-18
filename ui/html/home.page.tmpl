@@ -3,6 +3,24 @@
 {{ define "title" }}Домашняя страница{{ end }}
 
 {{ define "main" }}
-<h2>Последние заметки</h2>
-<p>Пока ничего нет</p>
+    <h2>Последние заметки</h2>
+
+    {{ if .ListEntries }}
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Заголовок</th>
+                <th>Создан</th>
+            </tr>
+            {{ range $key, $snippet := .ListEntries }}
+                <tr>
+                    <td>{{ $snippet.ID }}</td>
+                    <td><a href="/snippet?id={{ $snippet.ID }}">{{ $snippet.Title }}</a></td>
+                    <td>{{ $snippet.CreatedAt }}</td>
+                </tr>
+            {{ end }}
+        </table>
+    {{ else }}
+        <p>Пока ничего нет</p>
+    {{ end }}
 {{ end }}

@@ -7,5 +7,6 @@ import "github.com/volodec/snippetbox/pkg/models"
 // На данный момент он содержит только одно поле, но мы добавим в него другие
 // по мере развития нашего приложения.
 type templateData struct {
-	Snippet *models.Snippet
+	OneEntry    *models.Snippet
+	ListEntries []*models.Snippet
 }

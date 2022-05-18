@@ -46,7 +46,7 @@ func (m *SnippetModel) Get(id int) (*models.Snippet, error) {
 	// Возвращается указатель на объект sql.Row, который содержит данные записи.
 	row := m.DB.QueryRow(query, id)
 
-	// Инициализируем указатель на новую структуру Snippet.
+	// Инициализируем указатель на новую структуру OneEntry.
 	s := &models.Snippet{}
 
 	scanErr := row.Scan(&s.ID, &s.Title, &s.Content, &s.CreatedAt, &s.ExpiresAt)
